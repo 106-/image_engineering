@@ -1,0 +1,7 @@
+.vscode
+*.md
+*.pdf
+*.html
+*.pgm
+*.pyc
+markdown.css
