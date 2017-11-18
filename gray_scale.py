@@ -12,20 +12,20 @@ class gray_scale:
       self.pixel = []
     
     # gray_scale同士の足し算を定義
-    def __add__(self, other):
+    def __add__(self, other, **args):
         def func(img, x, y, add_img):
             return img.pixel[y][x] + add_img.pixel[y][x]
         # gray_scale + gray_scale
         if isinstance(other, gray_scale):
             if self.height != other.height or self.width != other.width:
                 raise ValueError("Images must be same size.")
-            self.map(func, add_img=other)
+            self.map(func, add_img=other, **args)
             return self
         else:
-            raise ValueError("Cannot add gray_scale with %s" % type(other))
+            raise ValueError("Canno3x3t add gray_scale with %s" % type(other))
     
-    def __iadd__(self, other):
-        return self.__add__(other)        
+    def __iadd__(self, other, **args):
+        return self.__add__(other, **args)        
 
     # 画像の2重リストを一つのリストにまとめる
     def _flatted(self):
@@ -106,11 +106,13 @@ class gray_scale:
 
     # 全てのピクセルにfuncの返り値を入れる.
     # funcはgray_scale, x, y, 可変長引数を引数にとる.
-    def map(self, func, **args):
+    def map(self, func, adjust=True, **args):
         c = copy.deepcopy(self)
         for i,y in enumerate(self.pixel):
             for n,x in enumerate(y):
-                self.pixel[i][n] = self._pixel_adjust(int(func(c, n, i, **args)))
+                self.pixel[i][n] = int(func(c, n, i, **args))
+                if adjust:
+                    self.pixel[i][n] = self._pixel_adjust(int(func(c, n, i, **args)))
 
     # トーンカーブを適用する.
     def tone_curve(self, curve, **args):
@@ -127,8 +129,8 @@ class gray_scale:
         c = copy.deepcopy(self)
         c.tone_curve(lambda x: 255-x)
         c.map(func, delta=delta)
-        c.tone_curve(lambda x: x-128)
-        self += c
+        self.__add__(c, adjust=False)
+        self.tone_curve(lambda x: x-128)
 
     # フィルタの適用 
     def filter(self, filter_matrix):
