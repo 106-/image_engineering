@@ -158,12 +158,12 @@ class gray_scale:
         self.map(func, vert=vert, hori=hori, threshold=threshold)
 
     # フィルタの適用 
-    def filter(self, filter_matrix, adjust=True):
+    def filter(self, filter_matrix, adjust=True, frame=0):
         def func(img, x, y, filter_matrix):
             size = len(filter_matrix)/2
             # 範囲外の場合
             if y-size < 0 or x-size < 0 or img.height-1 < y+size or img.width-1 < x+size:
-                return img.pixel[y][x]
+                return frame
             # 範囲内なら
             else:
                 sum = 0
