@@ -132,8 +132,33 @@ class gray_scale:
         self.__add__(c, adjust=False)
         self.tone_curve(lambda x: x-128)
 
+    # Prewittフィルタ
+    def prewitt(self, threshold):
+        # ２つの画像の2乗,加算,平方根した値を返す
+        def func(img, x, y, vert, hori, threshold):
+            value = math.sqrt(vert.pixel[y][x]**2+hori.pixel[y][x]**2)
+            if value > threshold:
+                return 255
+            return 0
+
+        filter_vert = [
+            [ 1,  1,  1],
+            [ 0,  0,  0],
+            [-1, -1, -1]
+        ]
+        filter_hori = [
+            [-1,  0,  1],
+            [-1,  0,  1],
+            [-1,  0,  1]
+        ]
+        vert = copy.deepcopy(self)
+        hori = copy.deepcopy(self)
+        vert.filter(filter_vert, adjust=False)
+        hori.filter(filter_hori, adjust=False)
+        self.map(func, vert=vert, hori=hori, threshold=threshold)
+
     # フィルタの適用 
-    def filter(self, filter_matrix):
+    def filter(self, filter_matrix, adjust=True):
         def func(img, x, y, filter_matrix):
             size = len(filter_matrix)/2
             # 範囲外の場合
@@ -146,7 +171,7 @@ class gray_scale:
                     for value, dx in zip(row, range(-size, size+1)):
                         sum += img.pixel[y+dy][x+dx] * value
                 return sum
-        self.map(func, filter_matrix=filter_matrix)
+        self.map(func, filter_matrix=filter_matrix, adjust=adjust)
 
     # raw形式で出力
     def save_as_raw(self, filename):
