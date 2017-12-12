@@ -4,12 +4,13 @@ import struct
 from itertools import chain
 import math
 import copy
+from matrix import matrix
 
 class gray_scale:
-    def __init__(self):
-      self.height = 0
-      self.width = 0
-      self.pixel = []
+    def __init__(self, height=0, width=0, default_color=0):
+      self.height = height
+      self.width = width
+      self.pixel = [[default_color for x in range(width)] for y in range(height)]
     
     # gray_scale同士の足し算を定義
     def __add__(self, other, **args):
@@ -26,6 +27,9 @@ class gray_scale:
     
     def __iadd__(self, other, **args):
         return self.__add__(other, **args)        
+
+    def __getitem__(self, key):
+        return self.pixel[key]
 
     # 画像の2重リストを一つのリストにまとめる
     def _flatted(self):
@@ -172,6 +176,30 @@ class gray_scale:
                         sum += img.pixel[y+dy][x+dx] * value
                 return sum
         self.map(func, filter_matrix=filter_matrix, adjust=adjust)
+
+    # アフィン変換 matrixは適用したい変形行列, completionは補完方法の関数
+    def affine(self, trans_matrix, completion, **args):
+        # 座標の行列をつくる
+        m = matrix([[float(x),float(y),1] for y in range(self.height) for x in range(self.width)])
+        coord_matrix = trans_matrix.inverse() * m.transpose()
+        res = completion(self, coord_matrix.transpose(), m, **args)
+        self.height = res.height
+        self.width = res.width
+        self.pixel = res.pixel
+
+    # 回転 angleはラジアンで指定する. center_xやcenter_yが指定されていないとき,画像の中心を回転の中心とする.
+    def rotate(self, angle, completion, center_x=None, center_y=None, **args):
+        cx = self.width/2.0 if center_x==None else float(center_x)
+        cy = self.height/2.0 if center_y==None else float(center_y)
+        co = math.cos(angle)
+        si = math.sin(angle)
+        # 座標変換(y→-y)→中心を原点に移動→回転→中心を元の場所へ→座標変換を行う行列.
+        rotate_matrix = matrix([
+            [ co,  si, -cx*co -cy*si +cx],
+            [-si,  co,  cx*si -cy*co +cy],
+            [0.0, 0.0,                 1.0]
+        ])
+        self.affine(rotate_matrix, completion, **args)
 
     # raw形式で出力
     def save_as_raw(self, filename):
