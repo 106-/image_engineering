@@ -201,6 +201,10 @@ class gray_scale:
         ])
         self.affine(rotate_matrix, completion, **args)
 
+    # 与えられた座標は,画像の中に入っているか?
+    def isin(self, coord):
+        return (0 <= coord[0] < self.width and 0 <= coord[1] < self.height)
+
     # raw形式で出力
     def save_as_raw(self, filename):
         with open(filename, 'wb+') as f:
