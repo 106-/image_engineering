@@ -39,6 +39,5 @@ def bilinear(origin_image, origin_coords, trans_coords, default_color=255):
                 [yc-orig_y, orig_y-yf]
             ]).transpose()
             m = ma*mb*mc
-            color = m.values[0][0] if 0 <= m.values[0][0] < 256 else default_color
-            res_img[y][x] = color 
+            res_img[y][x] = int(m.values[0][0])
     return res_img
