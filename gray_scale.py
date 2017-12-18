@@ -116,7 +116,7 @@ class gray_scale:
             for n,x in enumerate(y):
                 self.pixel[i][n] = int(func(c, n, i, **args))
                 if adjust:
-                    self.pixel[i][n] = self._pixel_adjust(int(func(c, n, i, **args)))
+                    self.pixel[i][n] = self.pixel_adjust(int(func(c, n, i, **args)))
 
     # トーンカーブを適用する.
     def tone_curve(self, curve, **args):
@@ -239,7 +239,8 @@ class gray_scale:
         return img
     
     # ピクセルを0-255の範囲に収める
-    def _pixel_adjust(cls,pixel):
+    @staticmethod
+    def pixel_adjust(pixel):
         if pixel < 0:
             return 0
         elif 255 < pixel:
