@@ -24,6 +24,9 @@ def main():
     rotate_bl = copy.deepcopy(origin_img)
     rotate_bl.rotate(math.radians(30), interpolation.bilinear)
     rotate_bl.save_as_pgm("./rotate_30_bl.pgm")
+    rotate_bc = copy.deepcopy(origin_img)
+    rotate_bc.rotate(math.radians(30), interpolation.bicubic)
+    rotate_bc.save_as_pgm("./rotate_30_bc.pgm")
 
 if __name__=='__main__':
     main()
